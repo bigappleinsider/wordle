@@ -20,6 +20,11 @@ export enum GameStatus {
 	NotStarted = "not started",
 }
 
+export enum ControlKeys {
+	Backspace = "backspace",
+	Enter = "enter",
+}
+
 export type GuessesMap = {
 	[key: string]: HitType;
 };
@@ -90,11 +95,14 @@ export default function Board({ word }: BoardProps) {
 	};
 
 	const handleKeyPress = (letter: string) => {
+		const [, row] = selectedCell;
 		if (letter === "Backspace") {
 			handleBackspace();
 		} else if (letter === "Enter") {
-			handleCheckWord();
-			setSelectedCell([selectedCell[0] + 1, 0]);
+			if (row === word.length) {
+				handleCheckWord();
+				setSelectedCell([selectedCell[0] + 1, 0]);
+			}
 		} else {
 			const [row, col] = selectedCell;
 			if (col >= grid[0].length) return;
@@ -107,7 +115,11 @@ export default function Board({ word }: BoardProps) {
 
 	React.useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
-			handleKeyPress(event.key.toUpperCase());
+			let userInput = event.key;
+			if (/^[a-zA-Z]$/.test(userInput)) {
+				userInput = userInput.toUpperCase();
+			}
+			handleKeyPress(userInput);
 		};
 
 		window.addEventListener("keydown", handleKeyDown);
