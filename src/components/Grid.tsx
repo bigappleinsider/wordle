@@ -21,8 +21,18 @@ const GridRow = styled.div`
 `;
 
 interface GridCellProps {
+	value: string;
 	type?: HitType;
 }
+
+const getBorderStyle = (value: string, type?: HitType) => {
+	if (value.length === 0) {
+		return "2px solid #d3d6da";
+	} else if (type == null) {
+		return "2px solid #878a8c";
+	}
+	return "none";
+};
 
 const GridCell = styled.div<GridCellProps>`
 	width: 50px;
@@ -34,7 +44,7 @@ const GridCell = styled.div<GridCellProps>`
 	margin: 2px;
 	font-size: 18px;
 	font-weight: bold;
-	border: ${({ type }) => `${type == null ? "2px solid #d3d6da" : "none"}`};
+	border: ${({ value, type }) => getBorderStyle(value, type)};
 	color: ${({ type }) => `${type == null ? "#000" : "#fff"}`};
 	box-sizing: border-box;
 	background-color: ${({ type }) => {
@@ -86,7 +96,7 @@ const Grid: React.FC<GridProps> = ({ grid, status }) => {
 			{grid.map((row, rowIndex) => (
 				<GridRow key={rowIndex}>
 					{row.map((cell, cellIndex) => (
-						<GridCell key={cellIndex} type={cell.type}>
+						<GridCell key={cellIndex} type={cell.type} value={cell.value}>
 							{cell.value}
 						</GridCell>
 					))}
