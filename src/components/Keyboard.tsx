@@ -62,7 +62,7 @@ const Keyboard: React.FC<KeyboardProps> = ({
 					{row.map((key) => (
 						<StyledKeyboardButton
 							key={key}
-							disabled={status !== "playing"}
+							disabled={status !== GameStatus.Playing}
 							value={guessesMap[key]}
 							onClick={() => onKeyPress(key)}
 						>

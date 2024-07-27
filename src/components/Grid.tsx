@@ -91,7 +91,9 @@ const StyledOverlayMessage = styled.div`
 const Grid: React.FC<GridProps> = ({ grid, status }) => {
 	return (
 		<GridContainer
-			style={{ filter: status !== "playing" ? "grayscale(100%)" : "none" }}
+			style={{
+				filter: status !== GameStatus.Playing ? "grayscale(100%)" : "none",
+			}}
 		>
 			{grid.map((row, rowIndex) => (
 				<GridRow key={rowIndex}>
@@ -105,7 +107,7 @@ const Grid: React.FC<GridProps> = ({ grid, status }) => {
 			{status !== "playing" && (
 				<Overlay>
 					<StyledOverlayMessage>
-						<div>{status === "won" ? "You won!" : "You lost!"}</div>
+						<div>{status === GameStatus.Won ? "You won!" : "You lost!"}</div>
 						<StyledMessageButton
 							onClick={() => {
 								window.location.reload();

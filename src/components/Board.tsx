@@ -8,8 +8,17 @@ interface BoardProps {
 	word: string;
 }
 
-export type HitType = "hit" | "miss" | "partial";
-export type GameStatus = "won" | "lost" | "playing" | "not started";
+export enum HitType {
+	Hit = "hit",
+	Miss = "miss",
+	Partial = "partial",
+}
+export enum GameStatus {
+	Won = "won",
+	Lost = "lost",
+	Playing = "playing",
+	NotStarted = "not started",
+}
 
 export type GuessesMap = {
 	[key: string]: HitType;
@@ -27,7 +36,7 @@ const StyleBoard = styled.div`
 `;
 
 export default function Board({ word }: BoardProps) {
-	const [status, setStatus] = React.useState<GameStatus>("not started");
+	const [status, setStatus] = React.useState<GameStatus>(GameStatus.NotStarted);
 	const [grid, setGrid] = React.useState<Cell[][]>(
 		Array.from({ length: 6 }, () => Array(5).fill({ value: "" }))
 	);
@@ -52,12 +61,12 @@ export default function Board({ word }: BoardProps) {
 
 	const handleCheckGameStatus = () => {
 		const [row] = selectedCell;
-		const isGameWon = grid[row].every((cell) => cell.type === "hit");
+		const isGameWon = grid[row].every((cell) => cell.type === HitType.Hit);
 
 		if (isGameWon) {
-			setStatus("won");
+			setStatus(GameStatus.Won);
 		} else if (row === grid.length - 1) {
-			setStatus("lost");
+			setStatus(GameStatus.Lost);
 		}
 	};
 
@@ -66,14 +75,14 @@ export default function Board({ word }: BoardProps) {
 		const newGrid = [...grid];
 		grid[row].forEach((cell, index) => {
 			if (cell.value === word[index]) {
-				newGrid[row][index] = { ...cell, type: "hit" };
-				handleAddGuess(cell.value, "hit");
+				newGrid[row][index] = { ...cell, type: HitType.Hit };
+				handleAddGuess(cell.value, HitType.Hit);
 			} else if (word.includes(cell.value)) {
-				newGrid[row][index] = { ...cell, type: "partial" };
-				handleAddGuess(cell.value, "partial");
+				newGrid[row][index] = { ...cell, type: HitType.Partial };
+				handleAddGuess(cell.value, HitType.Partial);
 			} else {
-				newGrid[row][index] = { ...cell, type: "miss" };
-				handleAddGuess(cell.value, "miss");
+				newGrid[row][index] = { ...cell, type: HitType.Miss };
+				handleAddGuess(cell.value, HitType.Miss);
 			}
 		});
 		setGrid(newGrid);
@@ -112,11 +121,11 @@ export default function Board({ word }: BoardProps) {
 
 	return (
 		<StyleBoard>
-			{status === "not started" && (
-				<WelcomeMessage onPlay={() => setStatus("playing")} />
+			{status === GameStatus.NotStarted && (
+				<WelcomeMessage onPlay={() => setStatus(GameStatus.Playing)} />
 			)}
 
-			{status !== "not started" && (
+			{status !== GameStatus.NotStarted && (
 				<React.Fragment>
 					<Grid grid={grid} status={status} />
 					<Keyboard
