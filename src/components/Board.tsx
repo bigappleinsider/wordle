@@ -96,6 +96,20 @@ export default function Board({ word }: BoardProps) {
 		}
 	};
 
+	React.useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			handleKeyPress(event.key.toUpperCase());
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedCell, grid]);
+
 	return (
 		<StyleBoard>
 			{status === "not started" && (
