@@ -1,3 +1,4 @@
+import React from "react";
 import styled from "styled-components";
 
 import { GameStatus } from "./Board";
@@ -55,6 +56,23 @@ const Keyboard = () => {
 			dispatch(addGuess({ letter }));
 		}
 	};
+
+	React.useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			let userInput = event.key;
+			if (/^[a-zA-Z]$/.test(userInput)) {
+				userInput = userInput.toUpperCase();
+			}
+			handleKeyPress(userInput);
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const keys = [
 		["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
