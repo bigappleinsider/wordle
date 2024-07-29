@@ -1,13 +1,10 @@
 import React from "react";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
 
-import { Cell, HitType, GameStatus } from "./Board";
+import { RootState } from "../redux/store";
+import { HitType, GameStatus } from "./Board";
 import StyledMessageButton from "./StyledMessageButton";
-
-interface GridProps {
-	grid: Cell[][];
-	status: GameStatus;
-}
 
 const GridContainer = styled.div`
 	display: flex;
@@ -88,7 +85,10 @@ const StyledOverlayMessage = styled.div`
 	padding: 20px;
 `;
 
-const Grid: React.FC<GridProps> = ({ grid, status }) => {
+const Grid = () => {
+	const status = useSelector((state: RootState) => state.game.status);
+	const grid = useSelector((state: RootState) => state.game.grid);
+
 	return (
 		<GridContainer
 			style={{

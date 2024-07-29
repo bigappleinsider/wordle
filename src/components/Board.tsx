@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "styled-components";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../redux/store";
+import { setStatus } from "../redux/gameSlice";
+
 import Keyboard from "./Keyboard";
 import Grid from "./Grid";
 import WelcomeMessage from "./WelcomeMessage";
-
-interface BoardProps {
-	word: string;
-}
 
 export enum HitType {
 	Hit = "hit",
@@ -40,113 +40,24 @@ const StyleBoard = styled.div`
 	align-items: center;
 `;
 
-export default function Board({ word }: BoardProps) {
-	const [status, setStatus] = React.useState<GameStatus>(GameStatus.NotStarted);
-	const [grid, setGrid] = React.useState<Cell[][]>(
-		Array.from({ length: 6 }, () => Array(5).fill({ value: "" }))
-	);
-	const [selectedCell, setSelectedCell] = React.useState<[number, number]>([
-		0, 0,
-	]);
+export default function Board() {
+	const dispatch = useDispatch<AppDispatch>();
+	const status = useSelector((state: RootState) => state.game.status);
 
-	const [guessesMap, setGuessesMap] = React.useState<GuessesMap>({});
-
-	const handleAddGuess = (guess: string, type: HitType) => {
-		setGuessesMap((prevGuessesMap) => ({ ...prevGuessesMap, [guess]: type }));
+	const handlePlayGame = () => {
+		dispatch(setStatus(GameStatus.Playing));
 	};
-
-	const handleBackspace = () => {
-		const [row, col] = selectedCell;
-		if (col === 0) return;
-		const newGrid = [...grid];
-		newGrid[row][col - 1] = { value: "" };
-		setGrid(newGrid);
-		setSelectedCell([row, col - 1]);
-	};
-
-	const handleCheckGameStatus = () => {
-		const [row] = selectedCell;
-		const isGameWon = grid[row].every((cell) => cell.type === HitType.Hit);
-
-		if (isGameWon) {
-			setStatus(GameStatus.Won);
-		} else if (row === grid.length - 1) {
-			setStatus(GameStatus.Lost);
-		}
-	};
-
-	const handleCheckWord = () => {
-		const [row] = selectedCell;
-		const newGrid = [...grid];
-		grid[row].forEach((cell, index) => {
-			if (cell.value === word[index]) {
-				newGrid[row][index] = { ...cell, type: HitType.Hit };
-				handleAddGuess(cell.value, HitType.Hit);
-			} else if (word.includes(cell.value)) {
-				newGrid[row][index] = { ...cell, type: HitType.Partial };
-				handleAddGuess(cell.value, HitType.Partial);
-			} else {
-				newGrid[row][index] = { ...cell, type: HitType.Miss };
-				handleAddGuess(cell.value, HitType.Miss);
-			}
-		});
-		setGrid(newGrid);
-		handleCheckGameStatus();
-	};
-
-	const handleKeyPress = (letter: string) => {
-		const [, row] = selectedCell;
-		if (letter === "Backspace") {
-			handleBackspace();
-		} else if (letter === "Enter") {
-			if (row === word.length) {
-				handleCheckWord();
-				setSelectedCell([selectedCell[0] + 1, 0]);
-			}
-		} else {
-			const [row, col] = selectedCell;
-			if (col >= grid[0].length) return;
-			const newGrid = [...grid];
-			newGrid[row][col] = { value: letter };
-			setGrid(newGrid);
-			setSelectedCell([row, col + 1]);
-		}
-	};
-
-	React.useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			let userInput = event.key;
-			if (/^[a-zA-Z]$/.test(userInput)) {
-				userInput = userInput.toUpperCase();
-			}
-			handleKeyPress(userInput);
-		};
-
-		window.addEventListener("keydown", handleKeyDown);
-
-		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
-		};
-
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [selectedCell, grid]);
 
 	return (
 		<StyleBoard>
 			{status === GameStatus.NotStarted && (
-				<WelcomeMessage onPlay={() => setStatus(GameStatus.Playing)} />
+				<WelcomeMessage onPlay={() => handlePlayGame()} />
 			)}
 
 			{status !== GameStatus.NotStarted && (
 				<React.Fragment>
-					<Grid grid={grid} status={status} />
-					<Keyboard
-						status={status}
-						onKeyPress={(letter: string) => {
-							handleKeyPress(letter);
-						}}
-						guessesMap={guessesMap}
-					/>
+					<Grid />
+					<Keyboard />
 				</React.Fragment>
 			)}
 		</StyleBoard>

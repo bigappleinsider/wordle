@@ -1,7 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 
-import { GameStatus, GuessesMap } from "./Board";
+import { GameStatus } from "./Board";
+import { RootState, AppDispatch } from "../redux/store";
+import { addGuess, backspace, checkWord } from "../redux/gameSlice";
+
+import { useSelector, useDispatch } from "react-redux";
 
 const StyledKeyboardButton = styled.button`
 	height: 58px;
@@ -38,17 +42,38 @@ const StyledKeyboardRow = styled.div`
 	width: 560px;
 `;
 
-interface KeyboardProps {
-	status: GameStatus;
-	guessesMap: GuessesMap;
-	onKeyPress: (key: string) => void;
-}
+const Keyboard = () => {
+	const dispatch = useDispatch<AppDispatch>();
+	const status = useSelector((state: RootState) => state.game.status);
+	const guessesMap = useSelector((state: RootState) => state.game.guessesMap);
 
-const Keyboard: React.FC<KeyboardProps> = ({
-	status,
-	guessesMap,
-	onKeyPress,
-}) => {
+	const handleKeyPress = (letter: string) => {
+		if (letter === "Backspace") {
+			dispatch(backspace());
+		} else if (letter === "Enter") {
+			dispatch(checkWord());
+		} else {
+			dispatch(addGuess({ letter }));
+		}
+	};
+
+	React.useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			let userInput = event.key;
+			if (/^[a-zA-Z]$/.test(userInput)) {
+				userInput = userInput.toUpperCase();
+			}
+			handleKeyPress(userInput);
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	const keys = [
 		["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
 		["A", "S", "D", "F", "G", "H", "J", "K", "L"],
@@ -64,7 +89,7 @@ const Keyboard: React.FC<KeyboardProps> = ({
 							key={key}
 							disabled={status !== GameStatus.Playing}
 							value={guessesMap[key]}
-							onClick={() => onKeyPress(key)}
+							onClick={() => handleKeyPress(key)}
 						>
 							{key}
 						</StyledKeyboardButton>
