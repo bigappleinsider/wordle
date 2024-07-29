@@ -1,22 +1,15 @@
 import React from "react";
+import { Provider } from "react-redux";
+import store from "./redux/store";
 
 import Board from "./components/Board";
 
-const words = ["APPLE", "GRAPE", "PEACH", "MANGO", "BERRY"];
-function getRandomWord() {
-	const randomIndex = Math.floor(Math.random() * words.length);
-	return words[randomIndex];
-}
 function App() {
-	const [randomWord, setRandomWord] = React.useState("");
-
-	React.useEffect(() => {
-		const word = getRandomWord();
-		setRandomWord(word);
-	}, []);
 	return (
 		<div>
-			<Board word={randomWord} />
+			<Provider store={store}>
+				<Board />
+			</Provider>
 		</div>
 	);
 }
